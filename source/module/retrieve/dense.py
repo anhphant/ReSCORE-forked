@@ -96,12 +96,12 @@ class DenseRetriever(BaseRetriever):
         input_texts: List[str],
     ) -> Any:
         
-        model_inputs = self.passage_tokenizer.batch_encode_plus(
-            input_texts,
-            return_tensors="pt",
-            max_length=self.cfg.max_length,
+        model_inputs = self.passage_tokenizer(
+            passages,
+            max_length=self.max_length,
             padding=True,
             truncation=True,
+            return_tensors='pt'
         )
         model_inputs = {
             k:v.cuda() 
