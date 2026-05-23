@@ -376,9 +376,7 @@ if __name__ == '__main__':
             d.metadata["title"]
         )
 
-        print(
-            d.text[:200]
-        )
+        print(vars(d))
     
 #========================
     query = "FC Bayern Munich"
@@ -412,7 +410,7 @@ if __name__ == '__main__':
     )
 
 #========================
-    
+
 
     cfg.dataset_split = 'test'
     run(cfg, generator, retriever, indexer)
