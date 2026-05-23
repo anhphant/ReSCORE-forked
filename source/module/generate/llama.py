@@ -270,7 +270,7 @@ class LlamaGenerator(BaseGenerator):
 
         )
 
-        generated=\
+        generated = \
         self.tokenizer.batch_decode(
 
             outputs[
@@ -281,6 +281,13 @@ class LlamaGenerator(BaseGenerator):
             skip_special_tokens=True
 
         )
+
+        del outputs
+        del model_inputs
+
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
 
         return generated
 
