@@ -323,12 +323,96 @@ if __name__ == '__main__':
             use_fp16=opt.retrieval_use_fp16,
         )
     )
+
+    print(
+        retriever.cfg.query_model_name_or_path
+    )
+
+    print(
+    retriever.cfg.passage_model_name_or_path
+    )
+
     indexer = Indexer.load_local(
         IndexerConfig(
             embedding_sz=768,
             database_path= cfg.database_path
         )
     )
+
+    emb = retriever.embed(
+        ["hello"],
+        input_type="query"
+    )
+
+    print(emb.shape)
+    print(
+        indexer.cfg.embedding_sz
+    )
+#===================================
+    query = "Danish Football Union"
+
+    emb = retriever.embed(
+        [query],
+        input_type="query"
+    )
+
+    result=indexer.search(
+        emb.detach()
+        .cpu()
+        .numpy()
+        .astype("float32"),
+        k=10
+    )
+
+    for i,d in enumerate(
+        result[0].documents
+    ):
+
+        print("="*50)
+
+        print(i)
+
+        print(
+            d.metadata["title"]
+        )
+
+        print(
+            d.text[:200]
+        )
+    
+#========================
+    query = "FC Bayern Munich"
+
+    passage = """
+    FC Bayern Munich
+    is a football club
+    from Germany
+    """
+
+    q = retriever.embed(
+        [query],
+        input_type="query"
+    )
+
+    p = retriever.embed(
+        [passage],
+        input_type="passage"
+    )
+
+    import torch
+
+    sim = (
+    q @ p.T
+    ).item()
+
+    print(sim)
+#=====================
+    print(
+    cfg.database_path
+    )
+
+#========================
+    
 
     cfg.dataset_split = 'test'
     run(cfg, generator, retriever, indexer)
