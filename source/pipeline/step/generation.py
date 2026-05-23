@@ -89,72 +89,246 @@ class BaseOutputParser(ABC):
             f""
         )
         
-        
-class AnswerGenerateOutputParser(BaseOutputParser):
-    
+class AnswerGenerateOutputParser(
+    BaseOutputParser
+):
+
     def parse(
         self,
-        generated_text: str,
-        path: List[BaseState],
-    ) -> AnswerState:
-        
-        last_state_id = path[-1].state_id
-        
-        # Temp
-        if len(list(filter(lambda x: type(x).__name__ == 'ThoughtState', path))) < self.cfg.min_num_thought:
-            return AnswerState(
-                parent_state_id=last_state_id,
-                answer='unknown'
+        generated_text:str,
+        path
+    ):
+
+        import json
+        import re
+
+        last_state_id=\
+        path[-1].state_id
+
+        generated_text=\
+        generated_text.strip()
+
+        def safe_parse():
+
+            text=\
+            generated_text
+
+            text=\
+            text.replace(
+                "```json",
+                ""
             )
 
-        
-        generated_text = generated_text.strip()
-        try:
-            data = json.loads(generated_text)
-            if "answer" in data:
-                return AnswerState(
-                    parent_state_id=last_state_id,
-                    answer=str(data["answer"])
+            text=\
+            text.replace(
+                "```",
+                ""
+            )
+
+            text=text.strip()
+
+            try:
+
+                data=\
+                json.loads(text)
+
+                if isinstance(
+                    data,
+                    dict
+                ):
+
+                    if (
+                        "answer"
+                        in data
+                    ):
+
+                        return str(
+                            data[
+                                "answer"
+                            ]
+                        )
+
+                if isinstance(
+                    data,
+                    str
+                ):
+
+                    return data
+
+                if isinstance(
+                    data,
+                    int
+                ):
+
+                    return str(data)
+
+            except:
+
+                pass
+
+            m=re.search(
+
+                r'"answer"\s*:\s*"([^"]+)',
+
+                text,
+
+                re.DOTALL
+
+            )
+
+            if m:
+
+                return m.group(
+                    1
+                ).strip()
+
+            try:
+
+                return \
+                clean_wrong_json_format(
+
+                    generated_text,
+
+                    'answer'
+
                 )
-            else:
-                return AnswerState(
-                    parent_state_id=last_state_id,
-                    answer='unknown'
-                )
-        except json.JSONDecodeError:
-            return AnswerState(
-                    parent_state_id=last_state_id,
-                    answer='unknown'
-                )
+
+            except:
+
+                return generated_text
+
+        answer=safe_parse()
+
+        return AnswerState(
+
+            parent_state_id=
+            last_state_id,
+
+            answer=
+            str(answer)
+
+        )
             
             
-class ThoughtGenerateOutputParser(BaseOutputParser):
-    
+class ThoughtGenerateOutputParser(
+    BaseOutputParser
+):
+
     def parse(
         self,
-        generated_text: str,
-        path: List[BaseState],
-    ) -> AnswerState:
-        
-        last_state_id = path[-1].state_id
-        generated_text = generated_text.strip()
-        try:
-            data = json.loads(generated_text)
-            if "thought" in data:
-                return ThoughtState(
-                    parent_state_id=last_state_id,
-                    thought=str(data["thought"])
+        generated_text:str,
+        path
+    ):
+
+        import json
+        import re
+
+        last_state_id=\
+        path[-1].state_id
+
+        generated_text=\
+        generated_text.strip()
+
+        def safe_parse():
+
+            text=\
+            generated_text
+
+            text=\
+            text.replace(
+                "```json",
+                ""
+            )
+
+            text=\
+            text.replace(
+                "```",
+                ""
+            )
+
+            text=text.strip()
+
+            try:
+
+                data=\
+                json.loads(text)
+
+                if isinstance(
+                    data,
+                    dict
+                ):
+
+                    if (
+                        "thought"
+                        in data
+                    ):
+
+                        return str(
+                            data[
+                                "thought"
+                            ]
+                        )
+
+                if isinstance(
+                    data,
+                    str
+                ):
+
+                    return data
+
+                if isinstance(
+                    data,
+                    int
+                ):
+
+                    return str(data)
+
+            except:
+
+                pass
+
+            m=re.search(
+
+                r'"thought"\s*:\s*"([^"]+)',
+
+                text,
+
+                re.DOTALL
+
+            )
+
+            if m:
+
+                return m.group(
+                    1
+                ).strip()
+
+            try:
+
+                return \
+                clean_wrong_json_format(
+
+                    generated_text,
+
+                    'thought'
+
                 )
-            else:
-                return ThoughtState(
-                    parent_state_id=last_state_id,
-                    thought=clean_wrong_json_format(generated_text, 'thought')
-                )
-        except json.JSONDecodeError:
-            return ThoughtState(
-                    parent_state_id=last_state_id,
-                    thought=clean_wrong_json_format(generated_text, 'thought')
-                )
+
+            except:
+
+                return generated_text
+
+        thought=safe_parse()
+
+        return ThoughtState(
+
+            parent_state_id=
+            last_state_id,
+
+            thought=
+            str(thought)
+
+        )
 
 class BasePromptGenerater(ABC):
     
