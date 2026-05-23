@@ -1,7 +1,7 @@
 from source.utility.data_utils import (
     load_data_from_jsonl
 )
-from source.pipeline.step.__retrieval import RetrievalStep
+from source.pipeline.step.retrieval import RetrievalStep
 from source.pipeline.step.generation import (
     GenerationStep, 
     AnswerGenerateOutputParser, 
@@ -305,8 +305,6 @@ if __name__ == '__main__':
         max_total_tokens=opt.generation_max_total_tokens,
         max_new_tokens=opt.generation_max_new_tokens,
         min_new_tokens=opt.generation_min_new_tokens,
-        use_vllm=True,
-        # use_vllm=False,
         )
     )
     retriever = DenseRetriever(
