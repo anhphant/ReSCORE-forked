@@ -60,6 +60,7 @@ class PipelineConfig:
     generation_max_total_tokens: Optional[int] = 4096
     generation_max_new_tokens: Optional[int] = 64
     generation_min_new_tokens: Optional[int] = 1
+    generation_tensor_parallel_size: Optional[int] = 1
     
     # Retrieval
     retrieval_query_type: Optional[
