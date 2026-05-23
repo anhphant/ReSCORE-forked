@@ -411,6 +411,27 @@ if __name__ == '__main__':
 
 #========================
 
+    print("last test to detect")
+    query = "FC Bayern Munich"
+
+    result=indexer.search(
+        retriever.embed(
+            [query],
+            input_type="query"
+        )
+        .detach()
+        .cpu()
+        .numpy()
+        .astype("float32"),
+        k=5
+    )
+
+    for s,d in zip(
+        result[0].scores,
+        result[0].documents
+    ):
+        print(s, d.metadata["title"])
+
 
     cfg.dataset_split = 'test'
     run(cfg, generator, retriever, indexer)
