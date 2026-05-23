@@ -1,7 +1,7 @@
 from source.utility.data_utils import (
     load_data_from_jsonl
 )
-from source.pipeline.step.__retrieval import RetrievalStep
+from source.pipeline.step.retrieval import RetrievalStep
 from source.pipeline.step.generation import (
     GenerationStep, 
     AnswerGenerateOutputParser, 
@@ -203,6 +203,12 @@ if __name__ == '__main__':
         default=1,
         help="Minimum new tokens for generation"
     )
+    parser.add_argument(
+        "--generation_tensor_parallel_size",
+        type=int,
+        default=1,
+        help="Tensor parallel size for generation"
+    )
 
     # Retrieval
     parser.add_argument(
@@ -305,8 +311,7 @@ if __name__ == '__main__':
         max_total_tokens=opt.generation_max_total_tokens,
         max_new_tokens=opt.generation_max_new_tokens,
         min_new_tokens=opt.generation_min_new_tokens,
-        use_vllm=True,
-        # use_vllm=False,
+        tensor_parallel_size=opt.generation_tensor_parallel_size,
         )
     )
     retriever = DenseRetriever(

@@ -58,14 +58,18 @@ class DenseRetriever(BaseRetriever):
         self.query_tokenizer = AutoTokenizer.from_pretrained(
             self.cfg.query_model_name_or_path
         )
+        if torch.cuda.device_count() > 1:
+            self.query_model = torch.nn.DataParallel(self.query_model)
         self.query_model = self.query_model.cuda()
         if self.cfg.passage_model_name_or_path != None:
-            self.query_model = AutoModel.from_pretrained(
+            self.passage_model = AutoModel.from_pretrained(
                 self.cfg.passage_model_name_or_path
             )
-            self.query_tokenizer = AutoTokenizer.from_pretrained(
+            self.passage_tokenizer = AutoTokenizer.from_pretrained(
                 self.cfg.passage_model_name_or_path
             )
+            if torch.cuda.device_count() > 1:
+                self.passage_model = torch.nn.DataParallel(self.passage_model)
             self.passage_model = self.passage_model.cuda()
         else:
             self.passage_model = copy.deepcopy(self.query_model)
