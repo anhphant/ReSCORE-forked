@@ -113,11 +113,15 @@ def run(cfg, generator, retriever, indexer):
 
 
 if __name__ == '__main__':
-    # Must be set before any CUDA initialization (including vLLM worker spawning).
-    # Linux defaults to 'fork', which causes "Cannot re-initialize CUDA in forked
-    # subprocess" when tensor_parallel_size > 1 spawns worker processes.
-    import multiprocessing
-    multiprocessing.set_start_method('spawn', force=True)
+    import os
+    # vLLM v1 with tensor_parallel_size > 1 spawns an EngineCore subprocess,
+    # which then spawns its own tensor-parallel worker processes. On Linux the
+    # default start method is 'fork', causing "Cannot re-initialize CUDA in
+    # forked subprocess". set_start_method() only controls the *parent* process's
+    # subprocess calls and does not propagate into vLLM's EngineCore subprocess.
+    # This env var is read by vLLM's multiproc_executor.py to set its internal
+    # multiprocessing context, so it must be set before LLM() is instantiated.
+    os.environ.setdefault("VLLM_WORKER_MULTIPROC_METHOD", "spawn")
 
     from argparse import ArgumentParser
     parser = ArgumentParser()
