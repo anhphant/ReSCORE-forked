@@ -286,12 +286,18 @@ def train(cfg, generator, retriever, indexer, optimizer, scheduler):
             
             if num_steps % 100 == 0:
                 save_path = os.path.join(cfg.prediction_file_dir, f"epoch_{epoch}_step_{num_steps}")
-                retriever.query_model.save_pretrained(save_path)
+                if hasattr(retriever.query_model, "module"):
+                    retriever.query_model.module.save_pretrained(save_path)
+                else:
+                    retriever.query_model.save_pretrained(save_path)
                 retriever.query_tokenizer.save_pretrained(save_path)
                 print(f"Retriever saved in {save_path} at epoch_{epoch}_step_{num_steps}!")
 
     save_path = cfg.prediction_file_dir
-    retriever.query_model.save_pretrained(save_path)
+    if hasattr(retriever.query_model, "module"):
+        retriever.query_model.module.save_pretrained(save_path)
+    else:
+        retriever.query_model.save_pretrained(save_path)
     retriever.query_tokenizer.save_pretrained(save_path)
     print(f"Final retriever saved in {save_path}!")
 
