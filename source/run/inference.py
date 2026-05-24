@@ -113,6 +113,12 @@ def run(cfg, generator, retriever, indexer):
 
 
 if __name__ == '__main__':
+    # Must be set before any CUDA initialization (including vLLM worker spawning).
+    # Linux defaults to 'fork', which causes "Cannot re-initialize CUDA in forked
+    # subprocess" when tensor_parallel_size > 1 spawns worker processes.
+    import multiprocessing
+    multiprocessing.set_start_method('spawn', force=True)
+
     from argparse import ArgumentParser
     parser = ArgumentParser()
 
