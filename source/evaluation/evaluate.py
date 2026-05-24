@@ -352,7 +352,7 @@ def official_evaluate_by_dicts(
         )
 
         gold_dict = {
-            datum["id"]: datum["answer"]
+            datum["_id"]: datum["answer"]
             for datum in original_data
         }
 
