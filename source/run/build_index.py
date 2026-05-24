@@ -86,7 +86,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--projection_size", type=int, default=768,
+        "--projection_size", type=int, default=1024,
         help=""
     )
     parser.add_argument(
