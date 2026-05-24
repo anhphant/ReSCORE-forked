@@ -129,6 +129,13 @@ if __name__ == '__main__':
     # Disabling the FlashInfer sampler falls back to PyTorch's native
     # top-k/top-p implementation, which needs no JIT compilation.
     os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
+    # FlashInfer is also selected as the *attention* backend and JIT-compiles
+    # its batch_prefill kernels with the same -lcuda linker flag, which also
+    # fails on Kaggle. Switch to TRITON_ATTN, which uses pure Triton kernels
+    # (no C++ ninja compilation) and is listed as a supported backend for
+    # compute capability 7.5 (Tesla T4).
+    os.environ.setdefault("VLLM_ATTENTION_BACKEND", "TRITON_ATTN")
+
 
 
     from argparse import ArgumentParser
