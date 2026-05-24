@@ -163,19 +163,31 @@ class Indexer(object):
         assert embeddings.shape[1] == self.cfg.embedding_sz, (
             f"[{Indexer:^16}] Embedding size {embeddings.shape[1]} doesn't match indexer embedding size {self.cfg.embedding_sz}."
         )
-        
-        embeddings = embeddings.astype('float32')
-        
-        pbar = tqdm(
-            zip(embeddings, documents),
-            desc=f"Indexing",
-            total=len(documents)
+                
+        embeddings = embeddings.astype(np.float32)
+
+        print(
+            "ADDING EMB:",
+            embeddings.shape
         )
-        
-        for embedding, document in pbar:
-            self.faiss_index.add(embedding[np.newaxis, :])
+
+        self.faiss_index.add(
+            embeddings
+        )
+
+        for document in tqdm(
+            documents,
+            desc="Docstore"
+        ):
             self.docstore._add(document)
-            self.faiss_id_to_docstore_id.append(document.id)
+            self.faiss_id_to_docstore_id.append(
+                document.id
+            )
+
+        print(
+            "FAISS TOTAL AFTER ADD",
+            self.faiss_index.ntotal
+        )
             
     def get_embedding_from_docstore_id(
         self,
@@ -284,10 +296,27 @@ class Indexer(object):
                             index_id
                         )
 
-                docstore_ids = [
-                    self.faiss_id_to_docstore_id[index_id]
-                    for index_id in faiss_ids
-                ]
+                docstore_ids = []
+
+                for index_id in faiss_ids:
+
+                    if index_id < 0:
+                        continue
+
+                    if index_id >= len(
+                        self.faiss_id_to_docstore_id
+                    ):
+                        print(
+                            "BAD INDEX",
+                            index_id
+                        )
+                        continue
+
+                    docstore_ids.append(
+                        self.faiss_id_to_docstore_id[
+                            index_id
+                        ]
+                    )
 
                 documents = [
                     self.docstore.search(docstore_id)
