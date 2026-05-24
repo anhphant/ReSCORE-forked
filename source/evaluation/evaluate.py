@@ -70,7 +70,7 @@ def evaluate_by_dicts(
 
         if prediction_type == "answer":
             prediction = [answer_extractor(_prediction) for _prediction in prediction]  # Temporary.
-            metrics[0](prediction, [ground_truth])
+            metrics[0](prediction, [[ground_truth]])
             metrics[1](prediction, ground_truth)
         elif prediction_type in ("titles", "pids", "real_pids"):
             metrics[0](prediction, ground_truth)

@@ -271,31 +271,6 @@ class Indexer(object):
                 batched_faiss_ids
             ):
 
-                print("FAISS IDS")
-                print(faiss_ids)
-
-                print(
-                    "FAISS NTOTAL",
-                    self.faiss_index.ntotal
-                )
-
-                print(
-                    "DOCSTORE MAP LEN",
-                    len(self.faiss_id_to_docstore_id)
-                )
-
-                for index_id in faiss_ids:
-
-                    print("INDEX_ID", index_id)
-
-                    if index_id >= len(
-                        self.faiss_id_to_docstore_id
-                    ):
-                        print(
-                            "BAD INDEX",
-                            index_id
-                        )
-
                 docstore_ids = []
 
                 for index_id in faiss_ids:
