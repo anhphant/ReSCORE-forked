@@ -295,6 +295,91 @@ def official_evaluate_by_dicts(
         os.remove(temp_output_file_path)
 
         return metrics
+    
+    if dataset == "vimqa":
+        import re
+        import string
+        from collections import Counter
+
+        def normalize_answer(s):
+            if s is None:
+                return ""
+
+            s = str(s).lower()
+
+            exclude = set(string.punctuation)
+            s = "".join(ch for ch in s if ch not in exclude)
+
+            s = re.sub(r"\s+", " ", s).strip()
+
+            return s
+
+        def compute_em(prediction, ground_truth):
+            return int(
+                normalize_answer(prediction)
+                == normalize_answer(ground_truth)
+            )
+
+        def compute_f1(prediction, ground_truth):
+
+            pred_tokens = normalize_answer(prediction).split()
+            gold_tokens = normalize_answer(ground_truth).split()
+
+            if len(pred_tokens) == 0 and len(gold_tokens) == 0:
+                return 1
+
+            if len(pred_tokens) == 0 or len(gold_tokens) == 0:
+                return 0
+
+            common = Counter(pred_tokens) & Counter(gold_tokens)
+            num_same = sum(common.values())
+
+            if num_same == 0:
+                return 0
+
+            precision = num_same / len(pred_tokens)
+            recall = num_same / len(gold_tokens)
+
+            return 2 * precision * recall / (precision + recall)
+
+        original_data = read_jsonl(
+            os.path.join(
+                "data",
+                "raw_data",
+                "vimqa",
+                "vimqa_dev.jsonl"
+            )
+        )
+
+        gold_dict = {
+            datum["id"]: datum["answer"]
+            for datum in original_data
+        }
+
+        total_em = 0
+        total_f1 = 0
+
+        for qid in question_ids:
+
+            pred = str(id_to_predictions.get(qid, ""))
+            gold = str(gold_dict.get(qid, ""))
+
+            total_em += compute_em(pred, gold)
+            total_f1 += compute_f1(pred, gold)
+
+        metrics = {
+            "f1": round(
+                100 * total_f1 / len(question_ids),
+                3
+            ),
+            "em": round(
+                100 * total_em / len(question_ids),
+                3
+            ),
+            "count": len(question_ids)
+        }
+
+        return metrics
 
     if dataset == "iirc":
         return evaluate_by_dicts("answer", id_to_ground_truths, id_to_predictions)

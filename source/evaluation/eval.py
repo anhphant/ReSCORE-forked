@@ -35,7 +35,7 @@ def calculate_recall(data, workers_num, cal_avg: bool=False):
 parser = argparse.ArgumentParser(description='Process some datasets.')
 parser.add_argument(
     '--dataset', 
-    type=str, choices=['2wikimultihopqa', 'musique', 'hotpotqa', 'nq', 'trivia', 'squad'],
+    type=str, choices=['2wikimultihopqa', 'musique', 'hotpotqa', 'nq', 'trivia', 'squad', 'vimqa'],
     help='Select the dataset to use'
 )
 parser.add_argument(
@@ -87,7 +87,7 @@ data = [
 # print(data[0]['ctxs'][0])
 # print(data[0]['answers'])
 # exit()
-if args.dataset in ['hotpotqa', '2wikimultihopqa', 'musique']:
+if args.dataset in ['hotpotqa', '2wikimultihopqa', 'musique', 'vimqa']:
     cal_avg = True
 else:
     cal_avg = False
