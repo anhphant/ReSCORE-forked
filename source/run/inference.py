@@ -323,6 +323,7 @@ if __name__ == '__main__':
         max_new_tokens=opt.generation_max_new_tokens,
         min_new_tokens=opt.generation_min_new_tokens,
         tensor_parallel_size=opt.generation_tensor_parallel_size,
+        use_vllm=opt.use_vllm,
         gpu_memory_utilization=opt.generation_gpu_memory_utilization,
         )
     )

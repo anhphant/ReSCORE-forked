@@ -47,17 +47,17 @@ class LlamaGeneratorConfig(BaseGeneratorConfig):
         default_factory=list
     )
 
-    include_stop_str_in_output=True
+    include_stop_str_in_output: bool = True
 
     # Lowered from 0.8: leave headroom for retriever models on the same GPU
-    gpu_memory_utilization=0.6
+    gpu_memory_utilization: float = 0.6
 
-    use_vllm=False
+    use_vllm: bool = False
 
-    eos_text=None
+    eos_text: Optional[str] = None
 
-    gpu=None
-    
+    gpu: Optional[int] = None
+
     tensor_parallel_size: int = 1
 
     # Avoids the CUDA graph memory spike at vLLM startup
