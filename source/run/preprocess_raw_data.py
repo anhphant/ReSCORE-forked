@@ -195,7 +195,101 @@ def make_musique_documents_tsv(
                         tsv_file.write(f"{id_}\t{paragraph_text.strip() if paragraph_text else 'None'}\t{title.strip() if title.strip() else 'None'}\n")
                         metadata["idx"] += 1
 
+def make_vimqa_documents_tsv(
+    output_filepath: str,
+    metadata: Dict = None
+) -> None:
 
+    raw_filepaths = [
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_train.json"
+        ),
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_dev.json"
+        ),
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_test.json"
+        ),
+    ]
+
+    metadata = metadata or {"idx": 1}
+
+    assert "idx" in metadata
+
+    used_full_ids = set()
+
+    with open(
+        output_filepath,
+        "w",
+        encoding="utf-8"
+    ) as tsv_file:
+
+        # TSV header
+        tsv_file.write(
+            "id\ttext\ttitle\n"
+        )
+
+        for raw_filepath in raw_filepaths:
+
+            with open(
+                raw_filepath,
+                "r",
+                encoding="utf-8"
+            ) as file:
+
+                full_data = json.load(file)
+
+                for instance in tqdm(full_data):
+
+                    for paragraph in instance["context"]:
+
+                        title = paragraph[0]
+
+                        paragraph_text = ' '.join(
+                            paragraph[1]
+                        )
+
+                        full_id = hash_object(
+                            title + paragraph_text
+                        )
+
+                        if full_id in used_full_ids:
+                            continue
+
+                        used_full_ids.add(
+                            full_id
+                        )
+
+                        id_ = full_id[:32]
+
+                        paragraph_text = (
+                            paragraph_text
+                            .replace('\n', ' ')
+                            .strip()
+                        )
+
+                        title = (
+                            title
+                            .replace('\n', ' ')
+                            .strip()
+                        )
+
+                        tsv_file.write(
+                            f"{id_}\t"
+                            f"{paragraph_text}\t"
+                            f"{title}\n"
+                        )
+
+                        metadata["idx"] += 1
 def main(args):
     output_filepath = os.path.join("data", "embed_ready_data", f"{args.dataset_name}.tsv")
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
@@ -208,6 +302,8 @@ def main(args):
         func = make_2wikimultihopqa_documents_tsv
     elif args.dataset_name == "musique":
         func = make_musique_documents_tsv
+    elif args.dataset_name == "vimqa":
+        func = make_vimqa_documents_tsv
     else:
         raise Exception(f"Unknown dataset_name {args.dataset_name}")
     

@@ -1,0 +1,44 @@
+=== Example 0 ===
+Keys: ['_id', 'question', 'answer', 'context', 'type', 'supporting_facts']
+_id: 6cd13e9f-e9d3-4f22-ae3e-f23d73495a03
+question: Miếu Bà Chúa Xứ Núi Sam được khánh thành năm bao nhiêu
+answer: 1824
+type: bridge
+
+type(context): <class 'list'>
+len(context): 10
+
+type(context[0]): <class 'list'>
+len(context[0]): 2
+context[0][0] (title): Trịnh-Nguyễn phân tranh
+type(context[0][1]): <class 'list'>
+len(context[0][1]) (sentences): 1
+context[0][1][0] (first sentence): Trịnh – Nguyễn phân tranh là thời kỳ phân chia giữa chế độ " vua Lê chúa Trịnh " ở phía Bắc sông Gianh ( sử gọi là Đàng Ngoài ) và chúa Nguyễn cai trị ở miền Nam ( Đàng Trong ) , mở đầu khi Trịnh Tráng đem quân đánh Nguyễn Phúc Nguyên năm 1627 và kết thúc vào cuối thế kỷ 18 khi nhà Tây Sơn đánh đổ cả chúa Nguyễn lẫn chúa Trịnh .
+
+type(supporting_facts): <class 'list'>
+len(supporting_facts): 1
+supporting_facts[0]: ['Miếu Bà Chúa Xứ Núi Sam', 0]
+type(supporting_facts[0]): <class 'list'>
+supporting_facts[0][0] (title): Miếu Bà Chúa Xứ Núi Sam
+supporting_facts[0][1] (sent_id): 0
+
+=== Example 1 ===
+Keys: ['_id', 'question', 'answer', 'context', 'type', 'supporting_facts']
+_id: 8032a180-d664-435e-8feb-45ccfc64d984
+question: Ca sĩ nào đã có Mark Ronson sản xuất album sinh năm 1983?
+answer: Amy Winehouse
+type: bridge
+len(context): 10
+len(supporting_facts): 2
+  sf[0]: title=Mark Ronson, sent_id=1
+  sf[1]: title=Amy Winehouse, sent_id=0
+
+=== Test Example 0 ===
+Keys: ['_id', 'question', 'answer', 'context', 'type', 'supporting_facts']
+Has 'answer': True
+Has 'supporting_facts': True
+
+=== Dataset Counts ===
+train: 10
+dev: 10
+test: 10
