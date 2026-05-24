@@ -100,7 +100,7 @@ class PipelineController(object):
             if fn == self.pipeline[1]: 
                 cur_paths = self.next()
                 next_states, loss = fn(cur_paths)
-                self.update_trainstep(next_states) 
+                self.cur_paths = next_states
             else:    
                 cur_paths = self.next()
                 next_states = fn(cur_paths)
