@@ -342,12 +342,14 @@ def official_evaluate_by_dicts(
 
             return 2 * precision * recall / (precision + recall)
 
+        split = "test" if len(id_to_predictions) > 0 else "dev"
+
         original_data = read_jsonl(
             os.path.join(
                 "data",
                 "raw_data",
                 "vimqa",
-                "vimqa_dev.jsonl"
+                f"vimqa_{split}.jsonl"
             )
         )
 

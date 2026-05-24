@@ -40,7 +40,7 @@ class PipelineConfig:
     batch_size: Optional[int] = 2
     seed: Optional[int] = 100
     dataset: Optional[Literal['hotpotqa', '2wikimultihopqa', 'musique']] = 'musique'
-    dataset_split: Optional[Literal['train', 'dev', 'test']] = 'test'
+    dataset_split: Optional[Literal['train', 'dev', 'test']] = 'dev'
     pipeline_type: Optional[Literal['single_retrieval', 'multi_retrieval', 'no_retrieval']] = 'multi_retrieval'
 
     # Prompt
