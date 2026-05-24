@@ -122,6 +122,14 @@ if __name__ == '__main__':
     # This env var is read by vLLM's multiproc_executor.py to set its internal
     # multiprocessing context, so it must be set before LLM() is instantiated.
     os.environ.setdefault("VLLM_WORKER_MULTIPROC_METHOD", "spawn")
+    # FlashInfer JIT-compiles its sampling kernel via ninja, which requires
+    # libcuda.so to be on the linker path. On Kaggle (and similar sandboxed
+    # environments) libcuda.so lives only in /usr/local/cuda/lib64/stubs/ and
+    # is not visible to the system linker, causing "cannot find -lcuda".
+    # Disabling the FlashInfer sampler falls back to PyTorch's native
+    # top-k/top-p implementation, which needs no JIT compilation.
+    os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
+
 
     from argparse import ArgumentParser
     parser = ArgumentParser()
