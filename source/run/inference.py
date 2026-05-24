@@ -41,6 +41,9 @@ def run(cfg, generator, retriever, indexer):
     clean_and_create_dir(cfg.prediction_file_dir)
     cfg.save()
 
+    print(cfg.data_file_path)
+    print(cfg.ground_truth_file_path)
+
     inputs, id_to_ground_truths, contexts = load_data_from_jsonl(
         file_path = cfg.data_file_path,
         ground_truth_file_path=cfg.ground_truth_file_path,
