@@ -433,5 +433,5 @@ if __name__ == '__main__':
         print(s, d.metadata["title"])
 
 
-    cfg.dataset_split = 'dev'
+    cfg.dataset_split = 'test'
     run(cfg, generator, retriever, indexer)
