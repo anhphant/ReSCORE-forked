@@ -82,10 +82,24 @@ def run(cfg, generator, retriever, indexer):
         )
         for question_id, question_text in inputs.items()
     ]
+    
+    print("inputs", len(inputs))
+    print("start_states", len(start_states))
+
     controller.run(
         start_states,
         batch_size=cfg.batch_size
     )
+
+    print("after controller")
+
+    print(cfg.prediction_file_path)
+
+    with open(cfg.prediction_file_path) as f:
+        x = json.load(f)
+
+    print("prediction count", len(x))
+    print(list(x.items())[:3])
     
     with open(cfg.ground_truth_file_path, 'r', encoding='utf-8') as f:
         id_to_ground_truths = json.load(f)
@@ -100,6 +114,7 @@ def run(cfg, generator, retriever, indexer):
     )
     with open(cfg.evaluation_file_path, 'w', encoding='utf-8') as f:
         json.dump(evaluation_results, f)
+
     official_evaluation_results = official_evaluate_by_dicts(
         prediction_type='answer',
         id_to_ground_truths=id_to_ground_truths,
