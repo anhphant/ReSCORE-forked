@@ -52,7 +52,7 @@ generator = LlamaGenerator(
 
 retriever = DenseRetriever(
     DenseRetrieverConfig(
-        query_model_name_or_path='facebook/contriever-msmarco',
+        query_model_name_or_path='intfloat/multilingual-e5-large',
         passage_model_name_or_path=None,
         batch_size=32,
         training_strategy=None,

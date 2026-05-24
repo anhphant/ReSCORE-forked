@@ -19,18 +19,20 @@ class DenseRetrieverConfig(BaseRetrieverConfig):
                 'facebook/mcontriever',
                 'facebook/contriever',
                 'facebook/mcontriever-msmarco',
-                'facebook/contriever-msmarco'
+                'facebook/contriever-msmarco',
+                'intfloat/multilingual-e5-large'
             ],
             str
         ]
-    ] = 'facebook/contriever-msmarco'
+    ] = 'intfloat/multilingual-e5-large'
     passage_model_name_or_path: Optional[
         Union[
             Literal[
                 'facebook/mcontriever',
                 'facebook/contriever',
                 'facebook/mcontriever-msmarco',
-                'facebook/contriever-msmarco'
+                'facebook/contriever-msmarco',
+                'intfloat/multilingual-e5-large'
             ],
             str
         ]
@@ -178,7 +180,7 @@ if __name__ == '__main__':
         batch_size=2,
         training_strategy='query_only',
         use_fp16=True,
-        query_model_name_or_path='facebook/contriever-msmarco',
+        query_model_name_or_path='intfloat/multilingual-e5-large,
     )
     
     retriever = DenseRetriever(

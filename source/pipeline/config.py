@@ -76,7 +76,7 @@ class PipelineConfig:
     retrieval_no_wh_words: Optional[bool] = True # Store true
     
     # Retriever
-    retrieval_query_model_name_or_path: Optional[str] = 'facebook/contriever-msmarco'
+    retrieval_query_model_name_or_path: Optional[str] = 'intfloat/multilingual-e5-large'
     retrieval_passage_model_name_or_path: Optional[str] = None
     retrieval_batch_size: Optional[int] = 32
     retrieval_training_strategy: Optional[Literal['query_only', 'both']] = 'query_only'

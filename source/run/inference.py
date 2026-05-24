@@ -250,7 +250,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--retrieval_query_model_name_or_path",
         type=str,
-        default='facebook/contriever-msmarco',
+        default='intfloat/multilingual-e5-large',
         help="Query model name or path for retrieval"
     )
     parser.add_argument(

@@ -50,7 +50,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-query_model_name_or_path = 'facebook/contriever-msmarco'
+query_model_name_or_path = 'intfloat/multilingual-e5-large'
 method = args.method
 database_folder_name = query_model_name_or_path.split('/')[-1].replace('-', '_')
 if os.path.exists(args.method):

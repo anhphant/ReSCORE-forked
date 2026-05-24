@@ -98,7 +98,7 @@ def parse_args():
     parser.add_argument('--retrieval_no_wh_words', action='store_true', help='Exclude WH words from retrieval')
 
     # Retriever Config
-    parser.add_argument('--retrieval_query_model_name_or_path', type=str, default='facebook/contriever-msmarco', help='Retrieval query model path')
+    parser.add_argument('--retrieval_query_model_name_or_path', type=str, default='intfloat/multilingual-e5-large', help='Retrieval query model path')
     parser.add_argument('--retrieval_passage_model_name_or_path', type=str, default=None, help='Retrieval passage model path')
     parser.add_argument('--retrieval_batch_size', type=int, default=32, help='Batch size for retrieval')
     parser.add_argument('--retrieval_training_strategy', choices=['query_only', 'both'], default='query_only', help='Training strategy for retrieval')

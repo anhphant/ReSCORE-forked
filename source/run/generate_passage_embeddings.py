@@ -44,7 +44,7 @@ def main(args):
         batch_size=args.per_gpu_batch_size,
         training_strategy='query_only',
         use_fp16=True,
-        query_model_name_or_path='facebook/contriever-msmarco',
+        query_model_name_or_path='intfloat/multilingual-e5-large',
     )
     
     retriever = DenseRetriever(
