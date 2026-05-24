@@ -62,17 +62,29 @@ def main(args):
     )
 
 
-    print(
-        f"Embedding generation for {len(passages)} passages."
-    )
-    documents = [preprocess_passage_to_doc(p) for p in passages]
-    passages = [d.content for d in documents]
-    
-    embeddings = retriever.embed(
-        input_texts=passages,
-        input_type='passsage'
-    )
-    embeddings = embeddings.detach().cpu().numpy()
+    batch_size = cfg.batch_size
+    total_batches = (len(passages) + batch_size - 1) // batch_size
+
+    documents = []
+    all_embeddings = []
+
+    for i in tqdm(range(0, len(passages), batch_size),
+                  total=total_batches,
+                  desc="Preprocessing & embedding"):
+        batch_raw = passages[i : i + batch_size]
+        # Preprocess this batch (CPU) while the GPU works on the previous one
+        batch_docs = [preprocess_passage_to_doc(p) for p in batch_raw]
+        batch_texts = [d.content for d in batch_docs]
+
+        with torch.no_grad():
+            batch_emb = retriever._embed_passages(batch_texts)
+
+        documents.extend(batch_docs)
+        all_embeddings.append(batch_emb.detach().cpu())
+
+    import numpy as np
+    embeddings = np.concatenate([e.numpy() for e in all_embeddings], axis=0)
+
     
     
     print(
