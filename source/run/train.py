@@ -72,7 +72,7 @@ def parse_args():
     parser.add_argument('--running_name', type=str, help='Name for the running experiment')
     parser.add_argument('--batch_size', type=int, default=20, help='Batch size')
     parser.add_argument('--seed', type=int, default=100, help='Random seed')
-    parser.add_argument('--dataset', choices=['hotpotqa', '2wikimultihopqa', 'musique'], default='musique', help='Dataset')
+    parser.add_argument('--dataset', choices=['hotpotqa', '2wikimultihopqa', 'musique', 'vimqa'], default='musique', help='Dataset')
     parser.add_argument('--dataset_split', choices=['train', 'dev', 'test'], default='train', help='Dataset split')
     parser.add_argument('--pipeline_type', choices=['single_retrieval', 'multi_retrieval', 'no_retrieval'], default='multi_retrieval', help='Pipeline type')
 
@@ -307,7 +307,6 @@ if __name__ == '__main__':
         max_total_tokens=opt.generation_max_total_tokens,
         max_new_tokens=opt.generation_max_new_tokens,
         min_new_tokens=opt.generation_min_new_tokens,
-        use_vllm=False,
         )
     )
     retriever = DenseRetriever(

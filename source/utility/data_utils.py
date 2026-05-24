@@ -25,52 +25,80 @@ def format_drop_answer(answer_json):
     return date_json["day"] + "-" + date_json["month"] + "-" + date_json["year"]
 
 def load_data_from_jsonl(
-    file_path: str, 
+    file_path: str,
     ground_truth_file_path: str = None,
     return_contexts: bool = False,
     is_demo: bool = False
 ):
-    # Open the .jsonl file and read line by line
+
     inputs = {}
     ground_truth = {}
     contexts = {}
-    with open(file_path, 'r') as file:
+
+    with open(file_path, 'r', encoding='utf8') as file:
+
         for i, line in enumerate(file):
+
             if is_demo and i >= 1024:
                 break
-                
-            input_instance = json.loads(line)
-            qid = input_instance["question_id"]
-            query = question = input_instance["question_text"]
-            answers_objects = input_instance["answers_objects"]
-            
 
-            formatted_answers = [  # List of potentially validated answers. Usually it's a list of one item.
-                tuple(format_drop_answer(answers_object)) for answers_object in answers_objects
-            ]
-            answer = Counter(formatted_answers).most_common()[0][0]
+            input_instance = json.loads(line)
+
+            # ===== ViMQA mapping =====
+            qid = input_instance["_id"]
+
+            question = input_instance["question"]
+
+            answer = input_instance["answer"]
 
             output_instance = {
                 "qid": qid,
-                "query": query,
+                "query": question,
                 "answer": answer,
                 "question": question,
             }
+
             inputs[qid] = question
+
             ground_truth[qid] = answer
+
             if return_contexts:
-                contexts_ = input_instance["contexts"] # List of Dicts "idx", "title", "paragraph_text"
+
+                raw_contexts = input_instance["context"]
+
+                contexts_ = []
+
+                for title, sentences in raw_contexts:
+
+                    paragraph = " ".join(sentences)
+
+                    contexts_.append({
+                        "title": title,
+                        "paragraph_text": paragraph
+                    })
+
                 contexts[qid] = contexts_
-            
+
     if ground_truth_file_path:
-        with open(ground_truth_file_path, 'w') as f:
-            json.dump(ground_truth, f, indent=4)
-    
+
+        with open(
+            ground_truth_file_path,
+            'w',
+            encoding='utf8'
+        ) as f:
+
+            json.dump(
+                ground_truth,
+                f,
+                indent=4,
+                ensure_ascii=False
+            )
+
     if return_contexts:
         return inputs, ground_truth, contexts
-    else:
-        return inputs, ground_truth
-        
+
+    return inputs, ground_truth
+    
 # def load_data_from_jsonl(
 #     file_path: str, 
 #     ground_truth_file_path: str = None,

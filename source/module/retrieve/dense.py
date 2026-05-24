@@ -126,27 +126,29 @@ class DenseRetriever(BaseRetriever):
         self,
         input_texts: List[str],
     ) -> Any:
-        
-        model_inputs = self.query_tokenizer.batch_encode_plus(
+
+        model_inputs = self.query_tokenizer(
             input_texts,
             return_tensors="pt",
             max_length=self.cfg.max_length,
             padding=True,
             truncation=True,
         )
+
         model_inputs = {
-            k:v.cuda() 
+            k: v.cuda()
             for k, v in model_inputs.items()
         }
+
         model_outputs = self.query_model(**model_inputs)
-        
+
         embeddings = pooling(
             token_embeddings=model_outputs[0],
             mask=model_inputs['attention_mask'],
             pooling=self.cfg.pooling,
             normalize=self.cfg.normalize
         )
-        
+
         return embeddings
         
     
