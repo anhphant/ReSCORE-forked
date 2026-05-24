@@ -104,6 +104,7 @@ def official_evaluate_by_dicts(
         return evaluate_by_dicts(prediction_type, id_to_ground_truths, id_to_predictions)
 
     question_ids = list(id_to_predictions.keys())
+    print(len(question_ids), "questions to evaluate.")
 
     for id_, prediction in id_to_predictions.items():
         if isinstance(prediction, list) and len(prediction) == 1:
