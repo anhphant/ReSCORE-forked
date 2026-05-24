@@ -38,6 +38,9 @@ class DenseRetrieverConfig(BaseRetrieverConfig):
     pooling: Optional[Literal['average', 'cls']] = 'average'
     max_length: Optional[int] = 512
     normalize: Optional[bool] = False
+    # Pin retriever to a single device so it does NOT spread across
+    # all GPUs via DataParallel (which would contaminate vLLM's GPU pool).
+    retriever_device: str = 'cuda:0'
 
 
 class DenseRetriever(BaseRetriever):
@@ -51,6 +54,12 @@ class DenseRetriever(BaseRetriever):
         assert self.cfg.query_model_name_or_path != None, (
             "You must specify query model name."
         )
+
+        # Determine the target device for retriever models.
+        # We deliberately pin to a single device (default: cuda:0) and avoid
+        # DataParallel, which would replicate weights across ALL visible GPUs
+        # and contaminate the GPU pool reserved for vLLM tensor parallelism.
+        retriever_device = torch.device(self.cfg.retriever_device)
         
         self.query_model = AutoModel.from_pretrained(
             self.cfg.query_model_name_or_path
@@ -58,9 +67,8 @@ class DenseRetriever(BaseRetriever):
         self.query_tokenizer = AutoTokenizer.from_pretrained(
             self.cfg.query_model_name_or_path
         )
-        if torch.cuda.device_count() > 1:
-            self.query_model = torch.nn.DataParallel(self.query_model)
-        self.query_model = self.query_model.cuda()
+        self.query_model = self.query_model.to(retriever_device)
+
         if self.cfg.passage_model_name_or_path != None:
             self.passage_model = AutoModel.from_pretrained(
                 self.cfg.passage_model_name_or_path
@@ -68,9 +76,7 @@ class DenseRetriever(BaseRetriever):
             self.passage_tokenizer = AutoTokenizer.from_pretrained(
                 self.cfg.passage_model_name_or_path
             )
-            if torch.cuda.device_count() > 1:
-                self.passage_model = torch.nn.DataParallel(self.passage_model)
-            self.passage_model = self.passage_model.cuda()
+            self.passage_model = self.passage_model.to(retriever_device)
         else:
             self.passage_model = copy.deepcopy(self.query_model)
             self.passage_tokenizer = self.query_tokenizer
@@ -107,8 +113,9 @@ class DenseRetriever(BaseRetriever):
             padding=True,
             truncation=True,
         )
+        _device = next(self.passage_model.parameters()).device
         model_inputs = {
-            k:v.cuda() 
+            k:v.to(_device)
             for k, v in model_inputs.items()
         }
         model_outputs = self.passage_model(**model_inputs)
@@ -134,8 +141,9 @@ class DenseRetriever(BaseRetriever):
             padding=True,
             truncation=True,
         )
+        _device = next(self.query_model.parameters()).device
         model_inputs = {
-            k:v.cuda() 
+            k:v.to(_device)
             for k, v in model_inputs.items()
         }
         model_outputs = self.query_model(**model_inputs)

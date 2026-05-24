@@ -49,7 +49,8 @@ class LlamaGeneratorConfig(BaseGeneratorConfig):
 
     include_stop_str_in_output=True
 
-    gpu_memory_utilization=0.8
+    # Lowered from 0.8: leave headroom for retriever models on the same GPU
+    gpu_memory_utilization=0.6
 
     use_vllm=False
 
@@ -58,6 +59,9 @@ class LlamaGeneratorConfig(BaseGeneratorConfig):
     gpu=None
     
     tensor_parallel_size: int = 1
+
+    # Avoids the CUDA graph memory spike at vLLM startup
+    enforce_eager: bool = True
 
 
 
@@ -111,7 +115,10 @@ class LlamaGenerator(BaseGenerator):
                 self.cfg.max_total_tokens,
                 
                 tensor_parallel_size=
-                self.cfg.tensor_parallel_size
+                self.cfg.tensor_parallel_size,
+
+                enforce_eager=
+                self.cfg.enforce_eager,
 
             )
 

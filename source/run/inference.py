@@ -209,6 +209,17 @@ if __name__ == '__main__':
         default=1,
         help="Tensor parallel size for generation"
     )
+    parser.add_argument(
+        "--use_vllm",
+        action='store_true',
+        help="Use vLLM backend for generation (more memory-efficient via paged attention)"
+    )
+    parser.add_argument(
+        "--generation_gpu_memory_utilization",
+        type=float,
+        default=0.6,
+        help="vLLM gpu_memory_utilization (fraction of GPU VRAM to reserve for KV cache)"
+    )
 
     # Retrieval
     parser.add_argument(
@@ -312,6 +323,8 @@ if __name__ == '__main__':
         max_new_tokens=opt.generation_max_new_tokens,
         min_new_tokens=opt.generation_min_new_tokens,
         tensor_parallel_size=opt.generation_tensor_parallel_size,
+        use_vllm=opt.use_vllm,
+        gpu_memory_utilization=opt.generation_gpu_memory_utilization,
         )
     )
     retriever = DenseRetriever(
@@ -339,99 +352,9 @@ if __name__ == '__main__':
         )
     )
 
-    emb = retriever.embed(
-        ["hello"],
-        input_type="query"
-    )
-
-    print(emb.shape)
-    print(
-        indexer.cfg.embedding_sz
-    )
-#===================================
-    query = "Danish Football Union"
-
-    emb = retriever.embed(
-        [query],
-        input_type="query"
-    )
-
-    result=indexer.search(
-        emb.detach()
-        .cpu()
-        .numpy()
-        .astype("float32"),
-        k=10
-    )
-
-    for i,d in enumerate(
-        result[0].documents
-    ):
-
-        print("="*50)
-
-        print(i)
-
-        print(
-            d.metadata["title"]
-        )
-
-        print(vars(d))
-    
-#========================
-    query = "FC Bayern Munich"
-
-    passage = """
-    FC Bayern Munich
-    is a football club
-    from Germany
-    """
-
-    q = retriever.embed(
-        [query],
-        input_type="query"
-    )
-
-    p = retriever.embed(
-        [passage],
-        input_type="passage"
-    )
-
+    # Free any fragmented allocations before starting the pipeline
     import torch
-
-    sim = (
-    q @ p.T
-    ).item()
-
-    print(sim)
-#=====================
-    print(
-    cfg.database_path
-    )
-
-#========================
-
-    print("last test to detect")
-    query = "FC Bayern Munich"
-
-    result=indexer.search(
-        retriever.embed(
-            [query],
-            input_type="query"
-        )
-        .detach()
-        .cpu()
-        .numpy()
-        .astype("float32"),
-        k=5
-    )
-
-    for s,d in zip(
-        result[0].scores,
-        result[0].documents
-    ):
-        print(s, d.metadata["title"])
-
+    torch.cuda.empty_cache()
 
     cfg.dataset_split = 'test'
     run(cfg, generator, retriever, indexer)
