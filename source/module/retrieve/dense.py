@@ -150,6 +150,8 @@ class DenseRetriever(BaseRetriever):
         )
 
         return embeddings
+    
+    
         
     
 def pooling(

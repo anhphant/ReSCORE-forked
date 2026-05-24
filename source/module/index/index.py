@@ -236,6 +236,19 @@ class Indexer(object):
         while i < n_total:
             batched_query_embeddings = query_embeddings[i:i+index_batch_size]
             i += index_batch_size
+
+            print("="*50)
+
+            print("QUERY SHAPE:")
+            print(query_embeddings.shape)
+
+            print("FAISS DIM:")
+            print(self.faiss_index.d)
+
+            print("QUERY TYPE:")
+            print(type(query_embeddings))
+
+            print("="*50)
             
             batched_scores, batched_faiss_ids = self.faiss_index.search(
                 batched_query_embeddings, k
