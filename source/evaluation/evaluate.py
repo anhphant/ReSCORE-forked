@@ -365,7 +365,7 @@ def official_evaluate_by_dicts(
 
         for qid in question_ids:
 
-            pred = str(id_to_predictions.get(qid, ""))
+            pred = str(id_to_predictions.get(_id, ""))
             gold = str(gold_dict.get(qid, ""))
 
             total_em += compute_em(pred, gold)
