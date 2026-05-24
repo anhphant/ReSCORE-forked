@@ -62,7 +62,7 @@ class PipelineConfig:
     generation_max_new_tokens: Optional[int] = 64
     generation_min_new_tokens: Optional[int] = 1
     generation_tensor_parallel_size: Optional[int] = 1
-    
+    generation_gpu_memory_utilization: Optional[float] = 0.9
     # Retrieval
     retrieval_query_type: Optional[
         Literal[
