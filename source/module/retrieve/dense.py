@@ -134,7 +134,7 @@ class DenseRetriever(BaseRetriever):
         input_texts: List[str],
     ) -> Any:
         
-        model_inputs = self.query_tokenizer.batch_encode_plus(
+        model_inputs = self.query_tokenizer(
             input_texts,
             return_tensors="pt",
             max_length=self.cfg.max_length,

@@ -139,12 +139,15 @@ if __name__ == '__main__':
     # (dlopen of libcuda.so.1 through the normal search path), so this stub
     # never needs to export any real symbols.
     import subprocess as _subprocess
-    _stubs_dir = "/usr/local/cuda/lib64/stubs"
-    _libcuda_so = os.path.join(_stubs_dir, "libcuda.so")
+    # /usr/local/cuda/lib64/stubs/ is read-only on Kaggle, so we write to /tmp.
+    # We then inject /tmp at the front of LIBRARY_PATH (the compile-time linker
+    # search path) so that FlashInfer's ninja build finds libcuda.so there even
+    # though the build.ninja only lists the original stubs dir with -L.
+    _libcuda_so = "/tmp/libcuda.so"
     if not os.path.exists(_libcuda_so):
         try:
-            os.makedirs(_stubs_dir, exist_ok=True)
-            # '-x c /dev/null' compiles /dev/null as a C source (empty TU).
+            # '-x c /dev/null' compiles /dev/null as a C source (empty TU),
+            # producing a valid ELF shared library with zero symbols.
             _result = _subprocess.run(
                 ["gcc", "-shared", "-fPIC", "-o", _libcuda_so, "-x", "c", "/dev/null"],
                 capture_output=True, text=True,
@@ -155,6 +158,10 @@ if __name__ == '__main__':
                 print(f"[inference.py] Warning: gcc stub failed: {_result.stderr.strip()}")
         except Exception as _e:
             print(f"[inference.py] Warning: could not create libcuda.so stub: {_e}")
+    # Prepend /tmp to LIBRARY_PATH so ld finds our stub when resolving -lcuda.
+    _lib_path = os.environ.get("LIBRARY_PATH", "")
+    if "/tmp" not in _lib_path.split(":"):
+        os.environ["LIBRARY_PATH"] = "/tmp:" + _lib_path if _lib_path else "/tmp"
 
 
 
