@@ -238,7 +238,7 @@ def official_evaluate_by_dicts(
         # prepare ground_truth file:
         temp_ground_truth_file_path = os.path.join(".temp", uuid.uuid4().hex)
         original_data = read_jsonl(os.path.join("data", "raw_data", "musique", "musique_ans_v1.0_dev.jsonl"))
-        original_keyed_data = {datum["id"]: datum for datum in original_data}
+        original_keyed_data = {datum["_id"]: datum for datum in original_data}
         filtered_data = [original_keyed_data[qid] for qid in question_ids]
         write_jsonl(filtered_data, temp_ground_truth_file_path)
 
