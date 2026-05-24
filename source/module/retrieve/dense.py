@@ -180,7 +180,7 @@ if __name__ == '__main__':
         batch_size=2,
         training_strategy='query_only',
         use_fp16=True,
-        query_model_name_or_path='intfloat/multilingual-e5-large,
+        query_model_name_or_path='intfloat/multilingual-e5-large',
     )
     
     retriever = DenseRetriever(
