@@ -253,45 +253,61 @@ class Indexer(object):
             batched_scores, batched_faiss_ids = self.faiss_index.search(
                 batched_query_embeddings, k
             )
-            for scores, faiss_ids in zip(batched_scores, batched_faiss_ids):
+            for scores, faiss_ids in zip(
+                batched_scores,
+                batched_faiss_ids
+            ):
+
+                print("FAISS IDS")
+                print(faiss_ids)
+
+                print(
+                    "FAISS NTOTAL",
+                    self.faiss_index.ntotal
+                )
+
+                print(
+                    "DOCSTORE MAP LEN",
+                    len(self.faiss_id_to_docstore_id)
+                )
+
+                for index_id in faiss_ids:
+
+                    print("INDEX_ID", index_id)
+
+                    if index_id >= len(
+                        self.faiss_id_to_docstore_id
+                    ):
+                        print(
+                            "BAD INDEX",
+                            index_id
+                        )
+
                 docstore_ids = [
-                    self.faiss_id_to_docstore_id[index_id] 
+                    self.faiss_id_to_docstore_id[index_id]
                     for index_id in faiss_ids
-
-                    for index_id in faiss_ids:
-
-                        print("INDEX_ID", index_id)
-
-                        print(
-                            "FAISS NTOTAL",
-                            self.faiss_index.ntotal
-                        )
-
-                        print(
-                            "DOCSTORE MAP LEN",
-                            len(self.faiss_id_to_docstore_id)
-                        )
-
-                    docs = [
-                        self.faiss_id_to_docstore_id[index_id]
-                        for index_id in batched_faiss_ids
-                    ]
                 ]
+
                 documents = [
                     self.docstore.search(docstore_id)
                     for docstore_id in docstore_ids
                 ]
+
                 _output = IndexerOutput(
                     documents=documents,
                     scores=scores
                 )
+
                 if return_embeddings:
                     embeddings = [
-                        self.faiss_index.reconstruct(int(faiss_id))
+                        self.faiss_index.reconstruct(
+                            int(faiss_id)
+                        )
                         for faiss_id in faiss_ids
                     ]
+
                     _output.embeddings = embeddings
 
                 outputs.append(_output)
-            
-        return outputs
+
+            return outputs
