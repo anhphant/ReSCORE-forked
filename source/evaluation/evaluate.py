@@ -356,6 +356,10 @@ def official_evaluate_by_dicts(
             for datum in original_data
         }
 
+        
+        print(list(id_to_predictions.keys())[:5])
+        print(list(gold_dict.keys())[:5])
+
         total_em = 0
         total_f1 = 0
 
