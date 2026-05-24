@@ -12,7 +12,7 @@ import torch
 
 @dataclass
 class IndexerConfig:
-    embedding_sz: int = 768
+    embedding_sz: int = 1024
     n_subquantizers: int = 0
     n_bits: int = 8
     database_path: str = "./database"

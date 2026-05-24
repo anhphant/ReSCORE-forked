@@ -320,7 +320,7 @@ if __name__ == '__main__':
     )
     indexer = Indexer.load_local(
         IndexerConfig(
-            embedding_sz=768,
+            embedding_sz=1024,
             database_path= cfg.database_path
         )
     )
