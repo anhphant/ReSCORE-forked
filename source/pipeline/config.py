@@ -53,6 +53,7 @@ class PipelineConfig:
     ] = 'last_only'
     prompt_max_para_count: Optional[int] = 15
     prompt_max_para_words: Optional[int] = 350
+    use_vllm: bool = False
     
     # Generator
     generation_model_name: Optional[str] = 'google/flan-t5-xl'
