@@ -6,7 +6,7 @@ python -m source.run.generate_passage_embeddings \
 --output_dir ./data/database/contriever_msmarco/musique \
 --shard_id 0 \
 --num_shards 1 \
---per_gpu_batch_size 256; \
+--per_gpu_batch_size 512; \
 python -m source.run.build_index \
 --output_dir ./data/database/contriever_msmarco/musique; \
 

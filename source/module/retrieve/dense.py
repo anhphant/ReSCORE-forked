@@ -38,8 +38,8 @@ class DenseRetrieverConfig(BaseRetrieverConfig):
     pooling: Optional[Literal['average', 'cls']] = 'average'
     max_length: Optional[int] = 512
     normalize: Optional[bool] = False
-    # Pin retriever to a single device so it does NOT spread across
-    # all GPUs via DataParallel (which would contaminate vLLM's GPU pool).
+    # Primary device for the retriever.  When multiple GPUs are available,
+    # DataParallel will use all of them with this as the root device.
     retriever_device: str = 'cuda:0'
 
 
@@ -55,51 +55,49 @@ class DenseRetriever(BaseRetriever):
             "You must specify query model name."
         )
 
-        # Determine the target device for retriever models.
-        # We deliberately pin to a single device (default: cuda:0) and avoid
-        # DataParallel, which would replicate weights across ALL visible GPUs
-        # and contaminate the GPU pool reserved for vLLM tensor parallelism.
         retriever_device = torch.device(self.cfg.retriever_device)
-        
+
         self.query_model = AutoModel.from_pretrained(
             self.cfg.query_model_name_or_path
-        )
+        ).to(retriever_device)
         self.query_tokenizer = AutoTokenizer.from_pretrained(
             self.cfg.query_model_name_or_path
         )
-        self.query_model = self.query_model.to(retriever_device)
 
-        if self.cfg.passage_model_name_or_path != None:
+        if self.cfg.passage_model_name_or_path is not None:
             self.passage_model = AutoModel.from_pretrained(
                 self.cfg.passage_model_name_or_path
-            )
+            ).to(retriever_device)
             self.passage_tokenizer = AutoTokenizer.from_pretrained(
                 self.cfg.passage_model_name_or_path
             )
-            self.passage_model = self.passage_model.to(retriever_device)
         else:
             self.passage_model = copy.deepcopy(self.query_model)
             self.passage_tokenizer = self.query_tokenizer
-        
-            
+
         if self.cfg.training_strategy == 'both':
             self.query_model = self.query_model.train()
             self.passage_model = self.passage_model.train()
-            
+
         elif self.cfg.training_strategy == 'query_only':
             self.query_model = self.query_model.train()
             self.passage_model = self.passage_model.eval()
-            
             if self.cfg.use_fp16:
                 self.passage_model = self.passage_model.half()
-            
+
         else:
             self.query_model = self.query_model.eval()
             self.passage_model = self.passage_model.eval()
-            
             if self.cfg.use_fp16:
                 self.query_model = self.query_model.half()
                 self.passage_model = self.passage_model.half()
+
+        # Use all available GPUs via DataParallel when more than one is visible.
+        # Each forward pass splits the batch across GPUs automatically.
+        if torch.cuda.device_count() > 1:
+            self.query_model = torch.nn.DataParallel(self.query_model)
+            self.passage_model = torch.nn.DataParallel(self.passage_model)
+            print(f"[DenseRetriever] Using {torch.cuda.device_count()} GPUs (DataParallel).")
 
     def _embed_passages(
         self,

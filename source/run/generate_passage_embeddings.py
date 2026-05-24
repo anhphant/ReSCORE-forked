@@ -62,7 +62,11 @@ def main(args):
     )
 
 
-    batch_size = cfg.batch_size
+    # DenseRetriever.__init__ already wraps models with DataParallel when
+    # multiple GPUs are visible; scale batch size to match.
+    num_gpus = max(torch.cuda.device_count(), 1)
+    batch_size = cfg.batch_size * num_gpus
+
     total_batches = (len(passages) + batch_size - 1) // batch_size
 
     documents = []
@@ -84,6 +88,7 @@ def main(args):
 
     import numpy as np
     embeddings = np.concatenate([e.numpy() for e in all_embeddings], axis=0)
+
 
     
     
