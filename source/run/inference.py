@@ -129,12 +129,35 @@ if __name__ == '__main__':
     # Disabling the FlashInfer sampler falls back to PyTorch's native
     # top-k/top-p implementation, which needs no JIT compilation.
     os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
-    # FlashInfer is also selected as the *attention* backend and JIT-compiles
-    # its batch_prefill kernels with the same -lcuda linker flag, which also
-    # fails on Kaggle. Switch to TRITON_ATTN, which uses pure Triton kernels
-    # (no C++ ninja compilation) and is listed as a supported backend for
-    # compute capability 7.5 (Tesla T4).
-    os.environ.setdefault("VLLM_ATTENTION_BACKEND", "TRITON_ATTN")
+    # FlashInfer's attention backend JIT-compiles its batch_prefill kernels with
+    # ninja, which links against -lcuda.  On Kaggle the CUDA toolkit only ships
+    # the stub as a *versioned* file (libcuda.so.1) inside the stubs/ directory;
+    # the linker's -lcuda flag looks for the *unversioned* libcuda.so.
+    # VLLM_ATTENTION_BACKEND is not a registered env-var in vLLM v0.21.0 and is
+    # silently ignored, so we cannot switch backends via env var.
+    # Instead, create the unversioned symlink before LLM() is ever called.
+    # The stubs/ directory is already on the ninja linker path (-L flag), so once
+    # libcuda.so exists there the build succeeds.  The stub only needs to exist at
+    # *link* time; the real libcuda.so.1 driver is loaded at runtime via RUNPATH.
+    _stubs_dir = "/usr/local/cuda/lib64/stubs"
+    _libcuda_so = os.path.join(_stubs_dir, "libcuda.so")
+    if not os.path.exists(_libcuda_so):
+        # Candidate sources in preference order
+        _libcuda_candidates = [
+            os.path.join(_stubs_dir, "libcuda.so.1"),         # versioned stub
+            "/usr/local/cuda/lib64/libcuda.so.1",              # toolkit real lib
+            "/usr/lib/x86_64-linux-gnu/libcuda.so.1",          # Debian driver lib
+            "/usr/lib/libcuda.so.1",
+        ]
+        for _src in _libcuda_candidates:
+            if os.path.exists(_src):
+                try:
+                    os.makedirs(_stubs_dir, exist_ok=True)
+                    os.symlink(_src, _libcuda_so)
+                    print(f"[inference.py] Created libcuda.so symlink: {_src} -> {_libcuda_so}")
+                except OSError as _e:
+                    print(f"[inference.py] Warning: could not create libcuda.so symlink: {_e}")
+                break
 
 
 
