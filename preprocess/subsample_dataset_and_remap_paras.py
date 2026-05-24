@@ -22,75 +22,102 @@ def get_instance_id(instance):
         return instance["id"]
 
     raise ValueError(
-        "Cannot find id field"
+        f"Cannot find id field: {instance.keys()}"
     )
 
 
 def main(args):
 
-    avoid_question_ids_file_path=None
+    avoid_question_ids_file_path = None
 
-    if args.set_name=="test":
+    if args.set_name == "test":
 
-        dev_file_path=os.path.join(
+        dev_file_path = os.path.join(
             "data",
             "processed_data",
             args.dataset_name,
             "dev_subsampled.jsonl"
         )
 
-        avoid_question_ids_file_path=(
-            dev_file_path
-            if os.path.exists(
+        if os.path.exists(dev_file_path):
+
+            avoid_question_ids_file_path = \
                 dev_file_path
+
+        sample_size = 500
+
+    elif args.set_name == "dev_diff_size":
+
+        avoid_question_ids_file_path = \
+            os.path.join(
+                "data",
+                "processed_data",
+                args.dataset_name,
+                "test_subsampled.jsonl"
             )
-            else None
-        )
 
-        sample_size=500
-
-    elif args.set_name=="dev_diff_size":
-
-        avoid_question_ids_file_path=\
-        os.path.join(
-
-            "data",
-            "processed_data",
-            args.dataset_name,
-            "test_subsampled.jsonl"
-        )
-
-        sample_size=args.sample_size
+        sample_size = args.sample_size
 
     else:
 
-        sample_size=100
+        sample_size = 100
 
-    input_file_path=os.path.join(
+    # ===== FIX BUG CHÍNH =====
+    input_split = args.set_name
 
+    if args.set_name == "dev_diff_size":
+        input_split = "dev"
+
+    input_file_path = os.path.join(
         "data",
         "processed_data",
         args.dataset_name,
-        "dev.jsonl"
+        f"{input_split}.jsonl"
     )
 
-    instances=read_jsonl(
+    print(
+        "Loading:",
         input_file_path
     )
 
+    instances = read_jsonl(
+        input_file_path
+    )
+
+    print(
+        "Raw instances:",
+        len(instances)
+    )
+
+    if len(instances):
+
+        print(
+            "Example keys:",
+            instances[0].keys()
+        )
+
     if avoid_question_ids_file_path:
 
-        avoid_ids=set(
+        print(
+            "Avoid file:",
+            avoid_question_ids_file_path
+        )
+
+        avoid_instances = read_jsonl(
+            avoid_question_ids_file_path
+        )
+
+        avoid_ids = set(
 
             get_instance_id(x)
 
-            for x in read_jsonl(
-                avoid_question_ids_file_path
-            )
+            for x in avoid_instances
 
         )
 
-        instances=[
+        before = len(instances)
+
+        instances = [
 
             x
 
@@ -101,19 +128,34 @@ def main(args):
 
         ]
 
-    sample_size=min(
+        print(
+            "Filtered:",
+            before,
+            "->",
+            len(instances)
+        )
+
+    if len(instances) == 0:
+
+        raise ValueError(
+            f"No remaining samples "
+            f"for {args.dataset_name} "
+            f"{args.set_name}"
+        )
+
+    sample_size = min(
         sample_size,
         len(instances)
     )
 
-    instances=random.sample(
+    instances = random.sample(
         instances,
         sample_size
     )
 
-    if args.set_name=="dev_diff_size":
+    if args.set_name == "dev_diff_size":
 
-        output_file_path=os.path.join(
+        output_file_path = os.path.join(
 
             "data",
             "processed_data",
@@ -124,7 +166,7 @@ def main(args):
 
     else:
 
-        output_file_path=os.path.join(
+        output_file_path = os.path.join(
 
             "data",
             "processed_data",
@@ -145,9 +187,9 @@ def main(args):
     )
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
 
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
 
@@ -188,6 +230,6 @@ if __name__=="__main__":
         default=500
     )
 
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     main(args)
