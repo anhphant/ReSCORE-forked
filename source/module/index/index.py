@@ -255,19 +255,27 @@ class Indexer(object):
             )
             for scores, faiss_ids in zip(batched_scores, batched_faiss_ids):
                 docstore_ids = [
-                    print("INDEX_ID", index_id)
-
-                    print(
-                        "FAISS NTOTAL",
-                        self.faiss_index.ntotal
-                    )
-
-                    print(
-                        "DOCSTORE MAP LEN",
-                        len(self.faiss_id_to_docstore_id)
-                    )
                     self.faiss_id_to_docstore_id[index_id] 
                     for index_id in faiss_ids
+
+                    for index_id in batched_faiss_ids:
+
+                        print("INDEX_ID", index_id)
+
+                        print(
+                            "FAISS NTOTAL",
+                            self.faiss_index.ntotal
+                        )
+
+                        print(
+                            "DOCSTORE MAP LEN",
+                            len(self.faiss_id_to_docstore_id)
+                        )
+
+                    docs = [
+                        self.faiss_id_to_docstore_id[index_id]
+                        for index_id in batched_faiss_ids
+                    ]
                 ]
                 documents = [
                     self.docstore.search(docstore_id)
