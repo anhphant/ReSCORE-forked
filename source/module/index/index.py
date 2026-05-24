@@ -258,7 +258,7 @@ class Indexer(object):
                     self.faiss_id_to_docstore_id[index_id] 
                     for index_id in faiss_ids
 
-                    for index_id in batched_faiss_ids:
+                    for index_id in faiss_ids:
 
                         print("INDEX_ID", index_id)
 
