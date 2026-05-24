@@ -53,9 +53,11 @@ class Docstore():
         
         if not conn:
             if os.path.exists(self.sqlite_path):
-                raise FileExistsError(
-                    f"Database already exists at {self.sqlite_path}. Use `load` to use existing file."
-                )
+                # A pre-existing DB with no supplied connection means a fresh
+                # build is requested (e.g. from build_index.py).  Remove the
+                # stale file so the index can be rebuilt from scratch.
+                os.remove(self.sqlite_path)
+                print(f"[Docstore] Removed existing database at {self.sqlite_path} for rebuild.")
             
             # Initialize DB
             conn = sqlite3.connect(
