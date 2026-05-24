@@ -64,6 +64,11 @@ def main(args):
         try:
             with open(file_path, 'rb') as file:
                 embeddings, documents = pickle.load(file)
+                print("EMBED COUNT", len(embeddings))
+                print("DOC COUNT", len(documents))
+
+                if len(embeddings) > 0:
+                    print("ONE EMB SHAPE", embeddings[0].shape)
                 indexer.index(
                     documents=documents,
                     embeddings=embeddings

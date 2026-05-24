@@ -153,6 +153,7 @@ class Indexer(object):
         documents: Union[Document, List[Document]],
         embeddings: ArrayLike
     ):
+        print("ADDING", len(embeddings))
         if type(documents) != list:
             documents = [documents]
         
