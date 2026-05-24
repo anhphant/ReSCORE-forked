@@ -332,4 +332,11 @@ if __name__ == '__main__':
 
     scheduler = None # scheduler is defined in the train function, too lazy to fix this...
 
+    test = retriever.calculate_query_embeddings(
+        ["hello"]
+    )
+
+    print("QUERY SHAPE", test.shape)
+    print("FAISS DIM", indexer.faiss_index.d)
+
     train(cfg, generator, retriever, indexer, optimizer, scheduler)
