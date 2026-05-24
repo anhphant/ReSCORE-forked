@@ -143,7 +143,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--dataset",
-        choices=['hotpotqa', '2wikimultihopqa', 'musique'],
+        choices=['hotpotqa', '2wikimultihopqa', 'musique', 'vimqa'],
         default='musique',
         help="Dataset name"
     )
