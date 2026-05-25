@@ -271,6 +271,7 @@ def train(cfg, generator, retriever, indexer, optimizer, scheduler):
                         scheduler.step()
                     
             if cfg.wandb_key:
+                print(torch.cuda.memory_summary())
                 log = {
                     f'training loss': batch_loss.item(), 
                     f'epoch': epoch,
