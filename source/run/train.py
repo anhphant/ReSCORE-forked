@@ -262,6 +262,7 @@ def train(cfg, generator, retriever, indexer, optimizer, scheduler):
 
             if num_accumulations % cfg.gradient_accumulation_steps == 0:
                 num_accumulations = 0
+                print(torch.cuda.memory_summary())
                 optimizer.step()
                 optimizer.zero_grad()
 
