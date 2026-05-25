@@ -50,6 +50,7 @@ from source.evaluation.evaluate import (
     evaluate_by_dicts,
     official_evaluate_by_dicts,
 )
+from transformers import Adafactor
 
 def collate_question_states(batch: List[QuestionState]) -> List[QuestionState]:
     return batch  
@@ -334,10 +335,13 @@ if __name__ == '__main__':
         )
     )
     
-    optimizer = AdamW(
-        retriever.query_model.parameters(), 
-        lr=cfg.lr,
-        foreach=False
+    
+    optimizer = Adafactor(
+        params,
+        lr=1e-4,
+        relative_step=False,
+        scale_parameter=False,
+        warmup_init=False
     )
 
     scheduler = None # scheduler is defined in the train function, too lazy to fix this...
