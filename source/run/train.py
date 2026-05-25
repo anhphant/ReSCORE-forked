@@ -280,7 +280,8 @@ def train(cfg, generator, retriever, indexer, optimizer, scheduler):
                 if (scheduler is not None):
                     log["learning_rate"] = scheduler.get_last_lr()[0]
                 wandb.log(log)
-
+            
+            print(torch.cuda.memory_summary())
             print(f"Step {num_steps}: Training Loss {batch_loss} logging!")
 
             if num_steps % validation_freq == 0:
