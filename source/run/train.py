@@ -335,12 +335,6 @@ if __name__ == '__main__':
         )
     )
     
-    params = filter(
-        lambda p: p.requires_grad,
-        generator.parameters()
-    )
-
-
     optimizer = Adafactor(
         retriever.query_model.parameters(),
         lr=1e-4,
