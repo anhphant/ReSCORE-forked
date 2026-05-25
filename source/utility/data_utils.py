@@ -86,16 +86,27 @@ def load_data_from_jsonl(
 
                 contexts_ = []
 
-                for title, sentences in raw_contexts:
+                for ctx in raw_contexts:
 
-                    paragraph = " ".join(sentences)
+                    if isinstance(ctx, list) and len(ctx) == 2:
+                        title, sentences = ctx
 
-                    contexts_.append({
+                    elif isinstance(ctx, str):
+                        title = ""
+                        sentences = [ctx]
+
+                    elif isinstance(ctx, dict):
+                        title = ctx.get("title", "")
+                        text = ctx.get("text", "")
+                        sentences = [text]
+
+                    else:
+                        continue
+
+                    contexts.append({
                         "title": title,
-                        "paragraph_text": paragraph
+                        "sentences": sentences
                     })
-
-                contexts[qid] = contexts_
 
     if ground_truth_file_path:
 
