@@ -85,6 +85,7 @@ def load_data_from_jsonl(
                 raw_contexts = input_instance["context"]
 
                 contexts_ = []
+                parsed_contexts = []
 
                 for ctx in raw_contexts:
 
@@ -107,6 +108,8 @@ def load_data_from_jsonl(
                         "title": title,
                         "sentences": sentences
                     })
+
+                contexts = parsed_contexts
 
     if ground_truth_file_path:
 
