@@ -355,7 +355,30 @@ def official_evaluate_by_dicts(
         )
 
         gold_dict = {
-            datum["id"]: datum["answer"]
+            id_to_ground_truths = {}
+
+            for i, datum in enumerate(original_data):
+
+                key = None
+
+                if "_id" in datum:
+                    key = datum["_id"]
+
+                elif "id" in datum:
+                    key = datum["id"]
+
+                elif "question_id" in datum:
+                    key = datum["question_id"]
+
+                else:
+
+                    import hashlib
+
+                    key = hashlib.md5(
+                        datum["question"].encode()
+                    ).hexdigest()
+
+                id_to_ground_truths[key] = datum["answer"]
             for datum in original_data
         }
 
