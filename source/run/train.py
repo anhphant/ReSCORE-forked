@@ -335,12 +335,9 @@ if __name__ == '__main__':
         )
     )
     
-    optimizer = Adafactor(
+    optimizer = AdamW(
         retriever.query_model.parameters(),
-        lr=3e-5,
-        relative_step=False,
-        scale_parameter=False,
-        warmup_init=False
+        lr = cfg.lr
     )
 
     scheduler = None # scheduler is defined in the train function, too lazy to fix this...
