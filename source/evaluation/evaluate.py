@@ -381,33 +381,33 @@ def official_evaluate_by_dicts(
             gold_dict[key] = datum["answer"]
 
                 
-                print(list(id_to_predictions.keys())[:5])
-                print(list(gold_dict.keys())[:5])
+            print(list(id_to_predictions.keys())[:5])
+            print(list(gold_dict.keys())[:5])
 
-                total_em = 0
-                total_f1 = 0
+            total_em = 0
+            total_f1 = 0
 
-                for qid in question_ids:
+            for qid in question_ids:
 
-                    pred = str(id_to_predictions.get(qid, ""))
-                    gold = str(gold_dict.get(qid, ""))
+                pred = str(id_to_predictions.get(qid, ""))
+                gold = str(gold_dict.get(qid, ""))
 
-                    total_em += compute_em(pred, gold)
-                    total_f1 += compute_f1(pred, gold)
+                total_em += compute_em(pred, gold)
+                total_f1 += compute_f1(pred, gold)
 
-                metrics = {
-                    "f1": round(
-                        100 * total_f1 / len(question_ids),
-                        3
-                    ),
-                    "em": round(
-                        100 * total_em / len(question_ids),
-                        3
-                    ),
-                    "count": len(question_ids)
-                }
+            metrics = {
+                "f1": round(
+                    100 * total_f1 / len(question_ids),
+                    3
+                ),
+                "em": round(
+                    100 * total_em / len(question_ids),
+                    3
+                ),
+                "count": len(question_ids)
+            }
 
-                return metrics
+            return metrics
 
     if dataset == "iirc":
         return evaluate_by_dicts("answer", id_to_ground_truths, id_to_predictions)
