@@ -354,62 +354,60 @@ def official_evaluate_by_dicts(
             )
         )
 
-        gold_dict = {
-            id_to_ground_truths = {}
+        import hashlib
 
-            for i, datum in enumerate(original_data):
+        gold_dict = {}
 
-                key = None
+        for datum in original_data:
 
-                if "_id" in datum:
-                    key = datum["_id"]
+            if "id" in datum:
 
-                elif "id" in datum:
-                    key = datum["id"]
+                key = datum["id"]
 
-                elif "question_id" in datum:
-                    key = datum["question_id"]
+            elif "_id" in datum:
 
-                else:
+                key = datum["_id"]
 
-                    import hashlib
+            elif "question_id" in datum:
 
-                    key = hashlib.md5(
-                        datum["question"].encode()
-                    ).hexdigest()
+                key = datum["question_id"]
 
-                id_to_ground_truths[key] = datum["answer"]
-            for datum in original_data
-        }
+            else:
 
-        
-        print(list(id_to_predictions.keys())[:5])
-        print(list(gold_dict.keys())[:5])
+                key = hashlib.md5(
+                    datum["question"].encode()
+                ).hexdigest()
 
-        total_em = 0
-        total_f1 = 0
+            gold_dict[key] = datum["answer"]
 
-        for qid in question_ids:
+                
+                print(list(id_to_predictions.keys())[:5])
+                print(list(gold_dict.keys())[:5])
 
-            pred = str(id_to_predictions.get(qid, ""))
-            gold = str(gold_dict.get(qid, ""))
+                total_em = 0
+                total_f1 = 0
 
-            total_em += compute_em(pred, gold)
-            total_f1 += compute_f1(pred, gold)
+                for qid in question_ids:
 
-        metrics = {
-            "f1": round(
-                100 * total_f1 / len(question_ids),
-                3
-            ),
-            "em": round(
-                100 * total_em / len(question_ids),
-                3
-            ),
-            "count": len(question_ids)
-        }
+                    pred = str(id_to_predictions.get(qid, ""))
+                    gold = str(gold_dict.get(qid, ""))
 
-        return metrics
+                    total_em += compute_em(pred, gold)
+                    total_f1 += compute_f1(pred, gold)
+
+                metrics = {
+                    "f1": round(
+                        100 * total_f1 / len(question_ids),
+                        3
+                    ),
+                    "em": round(
+                        100 * total_em / len(question_ids),
+                        3
+                    ),
+                    "count": len(question_ids)
+                }
+
+                return metrics
 
     if dataset == "iirc":
         return evaluate_by_dicts("answer", id_to_ground_truths, id_to_predictions)
