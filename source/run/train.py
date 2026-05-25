@@ -333,7 +333,8 @@ if __name__ == '__main__':
     
     optimizer = AdamW(
         retriever.query_model.parameters(), 
-        lr=cfg.lr
+        lr=cfg.lr,
+        foreach=False
     )
 
     scheduler = None # scheduler is defined in the train function, too lazy to fix this...
