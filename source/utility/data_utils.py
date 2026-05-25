@@ -104,7 +104,7 @@ def load_data_from_jsonl(
                     else:
                         continue
 
-                    contexts.append({
+                    parsed_contexts.append({
                         "title": title,
                         "sentences": sentences
                     })
