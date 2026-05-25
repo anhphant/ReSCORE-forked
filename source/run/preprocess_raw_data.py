@@ -196,96 +196,108 @@ def make_musique_documents_tsv(
                         metadata["idx"] += 1
 
 def make_vimqa_documents_tsv(
-    output_filepath
-):
+    output_filepath: str,
+    metadata: Dict = None
+) -> None:
 
-    docs = []
+    raw_filepaths = [
 
-    seen = set()
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_train.json"
+        ),
 
-    for instance in tqdm(data):
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_dev.json"
+        ),
 
-        context = instance["context"]
+        os.path.join(
+            "data",
+            "raw_data",
+            "vimqa",
+            "vimqa_test.json"
+        ),
 
-        if isinstance(
-            context,
-            str
-        ):
+    ]
 
-            doc = context.strip()
+    metadata = metadata or {
+        "idx":1
+    }
 
-            if doc not in seen:
-
-                seen.add(doc)
-
-                docs.append(
-                    [
-                        len(docs),
-                        doc,
-                        ""
-                    ]
-                )
-
-        else:
-
-            for paragraph in context:
-
-                text = ""
-
-                if isinstance(
-                    paragraph,
-                    list
-                ):
-
-                    if len(paragraph)>=2:
-
-                        title = paragraph[0]
-
-                        body = " ".join(
-                            paragraph[1]
-                        )
-
-                        text = (
-                            title
-                            + " "
-                            + body
-                        )
-
-                if text:
-
-                    if text not in seen:
-
-                        seen.add(text)
-
-                        docs.append(
-                            [
-                                len(docs),
-                                text,
-                                ""
-                            ]
-                        )
+    used_full_ids=set()
 
     with open(
         output_filepath,
         "w",
         encoding="utf8"
-    ) as f:
+    ) as tsv_file:
 
-        writer = csv.writer(
-            f,
-            delimiter="\t"
+        tsv_file.write(
+            "id\ttext\ttitle\n"
         )
 
-        writer.writerow([
-            "id",
-            "text",
-            "title"
-        ])
+        for raw_filepath in raw_filepaths:
 
-        writer.writerows(
-            docs
-        )
-        
+            with open(
+                raw_filepath,
+                "r",
+                encoding="utf8"
+            ) as file:
+
+                full_data=json.load(
+                    file
+                )
+
+                for instance in tqdm(
+                    full_data
+                ):
+
+                    context=instance.get(
+                        "context",
+                        ""
+                    )
+
+                    if not context:
+                        continue
+
+                    context=(
+                        context
+                        .replace(
+                            "\n",
+                            " "
+                        )
+                        .strip()
+                    )
+
+                    full_id=hash_object(
+                        context
+                    )
+
+                    if full_id in used_full_ids:
+
+                        continue
+
+                    used_full_ids.add(
+                        full_id
+                    )
+
+                    id_=full_id[:32]
+
+                    tsv_file.write(
+
+                        f"{id_}\t"
+                        f"{context}\t"
+                        f"\n"
+
+                    )
+
+                    metadata["idx"]+=1
+                    
 def main(args):
     output_filepath = os.path.join("data", "embed_ready_data", f"{args.dataset_name}.tsv")
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
