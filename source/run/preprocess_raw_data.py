@@ -196,100 +196,96 @@ def make_musique_documents_tsv(
                         metadata["idx"] += 1
 
 def make_vimqa_documents_tsv(
-    output_filepath: str,
-    metadata: Dict = None
-) -> None:
+    output_filepath
+):
 
-    raw_filepaths = [
-        os.path.join(
-            "data",
-            "raw_data",
-            "vimqa",
-            "vimqa_train.json"
-        ),
-        os.path.join(
-            "data",
-            "raw_data",
-            "vimqa",
-            "vimqa_dev.json"
-        ),
-        os.path.join(
-            "data",
-            "raw_data",
-            "vimqa",
-            "vimqa_test.json"
-        ),
-    ]
+    docs = []
 
-    metadata = metadata or {"idx": 1}
+    seen = set()
 
-    assert "idx" in metadata
+    for instance in tqdm(data):
 
-    used_full_ids = set()
+        context = instance["context"]
+
+        if isinstance(
+            context,
+            str
+        ):
+
+            doc = context.strip()
+
+            if doc not in seen:
+
+                seen.add(doc)
+
+                docs.append(
+                    [
+                        len(docs),
+                        doc,
+                        ""
+                    ]
+                )
+
+        else:
+
+            for paragraph in context:
+
+                text = ""
+
+                if isinstance(
+                    paragraph,
+                    list
+                ):
+
+                    if len(paragraph)>=2:
+
+                        title = paragraph[0]
+
+                        body = " ".join(
+                            paragraph[1]
+                        )
+
+                        text = (
+                            title
+                            + " "
+                            + body
+                        )
+
+                if text:
+
+                    if text not in seen:
+
+                        seen.add(text)
+
+                        docs.append(
+                            [
+                                len(docs),
+                                text,
+                                ""
+                            ]
+                        )
 
     with open(
         output_filepath,
         "w",
-        encoding="utf-8"
-    ) as tsv_file:
+        encoding="utf8"
+    ) as f:
 
-        # TSV header
-        tsv_file.write(
-            "id\ttext\ttitle\n"
+        writer = csv.writer(
+            f,
+            delimiter="\t"
         )
 
-        for raw_filepath in raw_filepaths:
+        writer.writerow([
+            "id",
+            "text",
+            "title"
+        ])
 
-            with open(
-                raw_filepath,
-                "r",
-                encoding="utf-8"
-            ) as file:
-
-                full_data = json.load(file)
-
-                for instance in tqdm(full_data):
-
-                    for paragraph in instance["context"]:
-
-                        title = paragraph[0]
-
-                        paragraph_text = ' '.join(
-                            paragraph[1]
-                        )
-
-                        full_id = hash_object(
-                            title + paragraph_text
-                        )
-
-                        if full_id in used_full_ids:
-                            continue
-
-                        used_full_ids.add(
-                            full_id
-                        )
-
-                        id_ = full_id[:32]
-
-                        paragraph_text = (
-                            paragraph_text
-                            .replace('\n', ' ')
-                            .strip()
-                        )
-
-                        title = (
-                            title
-                            .replace('\n', ' ')
-                            .strip()
-                        )
-
-                        tsv_file.write(
-                            f"{id_}\t"
-                            f"{paragraph_text}\t"
-                            f"{title}\n"
-                        )
-
-                        metadata["idx"] += 1
+        writer.writerows(
+            docs
+        )
+        
 def main(args):
     output_filepath = os.path.join("data", "embed_ready_data", f"{args.dataset_name}.tsv")
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
