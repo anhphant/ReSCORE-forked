@@ -9,20 +9,37 @@ from preprocess.lib import (
 
 random.seed(13370)
 
+import hashlib
 
 def get_instance_id(instance):
 
     if "question_id" in instance:
-        return instance["question_id"]
+
+        return instance[
+            "question_id"
+        ]
 
     if "_id" in instance:
-        return instance["_id"]
 
-    if "id" in instance:
-        return instance["id"]
+        return instance[
+            "_id"
+        ]
+
+    if "question" in instance:
+
+        return hashlib.md5(
+
+            instance[
+                "question"
+            ].encode()
+
+        ).hexdigest()
 
     raise ValueError(
-        f"Cannot find id field: {instance.keys()}"
+
+        f"Cannot find id field:"
+        f"{instance.keys()}"
+
     )
 
 
