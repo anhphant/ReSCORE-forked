@@ -45,7 +45,25 @@ def load_data_from_jsonl(
             input_instance = json.loads(line)
 
             # ===== ViMQA mapping =====
-            qid = input_instance["_id"]
+            import hashlib
+
+            if "_id" in input_instance:
+
+                qid = input_instance["_id"]
+
+            elif "question_id" in input_instance:
+
+                qid = input_instance["question_id"]
+
+            else:
+
+                qid = hashlib.md5(
+
+                    input_instance[
+                        "question"
+                    ].encode()
+
+                ).hexdigest()
 
             question = input_instance["question"]
 
