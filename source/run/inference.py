@@ -232,7 +232,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--retrieval_count",
         type=int,
-        choices=[2, 4, 6, 8],
+        choices=[2,4,6,8,12,16],
         default=8,
         help="Number of retrievals"
     )

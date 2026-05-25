@@ -337,7 +337,7 @@ if __name__ == '__main__':
     
     optimizer = Adafactor(
         retriever.query_model.parameters(),
-        lr=1e-4,
+        lr=3e-5,
         relative_step=False,
         scale_parameter=False,
         warmup_init=False
