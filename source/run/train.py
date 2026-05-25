@@ -5,6 +5,7 @@ import copy
 import warnings
 import argparse
 from argparse import ArgumentParser
+from bitsandbytes.optim import AdamW8bit
 from typing import List
 import torch
 from torch.optim import AdamW
@@ -335,9 +336,9 @@ if __name__ == '__main__':
         )
     )
     
-    optimizer = AdamW(
+    optimizer = AdamW8bit(
         retriever.query_model.parameters(),
-        lr = cfg.lr
+        lr=cfg.lr
     )
 
     scheduler = None # scheduler is defined in the train function, too lazy to fix this...
